@@ -23,8 +23,11 @@ export class ConversationMessagesClient extends BaseClient {
      * @param args.conversationId - The conversation ID.
      * @param args.newerThan - Optional date to get messages newer than.
      * @param args.olderThan - Optional date to get messages older than.
-     * @param args.limit - Optional limit on number of messages returned.
-     * @param args.cursor - Optional cursor for pagination.
+     * @param args.limit - Optional limit on number of messages returned (API default 20, max 500).
+     * @param args.cursor - Optional cursor. Not documented by the REST API for this endpoint; prefer `fromObjIndex`.
+     * @param args.fromObjIndex - Optional first `objIndex` to return.
+     * @param args.toObjIndex - Optional last `objIndex` to return.
+     * @param args.orderBy - Optional `'asc'` or `'desc'` (API default) ordering by `objIndex`.
      * @param options - Optional configuration. Set `batch: true` to return a descriptor for batch requests.
      * @returns An array of message objects.
      *
@@ -56,6 +59,9 @@ export class ConversationMessagesClient extends BaseClient {
         if (args.olderThan) params.older_than_ts = Math.floor(args.olderThan.getTime() / 1000)
         if (args.limit) params.limit = args.limit
         if (args.cursor) params.cursor = args.cursor
+        if (args.fromObjIndex != null) params.from_obj_index = args.fromObjIndex
+        if (args.toObjIndex != null) params.to_obj_index = args.toObjIndex
+        if (args.orderBy) params.order_by = args.orderBy
 
         const method = 'GET'
         const url = `${ENDPOINT_CONVERSATION_MESSAGES}/get`

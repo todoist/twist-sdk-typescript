@@ -44,7 +44,10 @@ export class ThreadsClient extends BaseClient {
      * @param args.olderThan - Optional date to get threads older than.
      * @param args.newer_than_ts - @deprecated Use `newerThan` instead.
      * @param args.older_than_ts - @deprecated Use `olderThan` instead.
-     * @param args.limit - Optional limit on number of threads returned.
+     * @param args.limit - Optional limit on number of threads returned (API default 20, max 500).
+     * @param args.beforeId - Optional; only threads with a lower id (ordering switches to id).
+     * @param args.afterId - Optional; only threads with a higher id (ordering switches to id).
+     * @param args.orderBy - Optional `'asc'` or `'desc'` (API default).
      * @param options - Optional configuration. Set `batch: true` to return a descriptor for batch requests.
      * @returns An array of thread objects.
      *

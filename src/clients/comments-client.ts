@@ -26,7 +26,10 @@ export class CommentsClient extends BaseClient {
      * @param args.from - @deprecated Use `newerThan` instead.
      * @param args.newerThan - Optional date to get comments newer than.
      * @param args.olderThan - Optional date to get comments older than.
-     * @param args.limit - Optional limit on number of comments returned.
+     * @param args.limit - Optional limit on number of comments returned (API default 20, max 500).
+     * @param args.fromObjIndex - Optional first `objIndex` to return.
+     * @param args.toObjIndex - Optional last `objIndex` to return.
+     * @param args.orderBy - Optional `'asc'` or `'desc'` (API default) ordering by `objIndex`.
      * @param options - Optional configuration. Set `batch: true` to return a descriptor for batch requests.
      * @returns An array of comment objects.
      *
@@ -53,6 +56,9 @@ export class CommentsClient extends BaseClient {
         if (newerThan) params.newer_than_ts = Math.floor(newerThan.getTime() / 1000)
         if (args.olderThan) params.older_than_ts = Math.floor(args.olderThan.getTime() / 1000)
         if (args.limit) params.limit = args.limit
+        if (args.fromObjIndex != null) params.from_obj_index = args.fromObjIndex
+        if (args.toObjIndex != null) params.to_obj_index = args.toObjIndex
+        if (args.orderBy) params.order_by = args.orderBy
 
         const method = 'GET'
         const url = `${ENDPOINT_COMMENTS}/get`

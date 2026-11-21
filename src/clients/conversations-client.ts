@@ -31,7 +31,13 @@ export class ConversationsClient extends BaseClient {
      *
      * @param args - The arguments for getting conversations.
      * @param args.workspaceId - The workspace ID.
-     * @param args.archived - Optional flag to include archived conversations.
+     * @param args.archived - Optional flag; when `true`, only archived conversations are returned.
+     * @param args.limit - Optional limit on number of conversations returned (API default 20, max 500).
+     * @param args.newerThan - Optional date to get conversations newer than.
+     * @param args.olderThan - Optional date to get conversations older than.
+     * @param args.beforeId - Optional; only conversations with a lower id (ordering switches to id).
+     * @param args.afterId - Optional; only conversations with a higher id (ordering switches to id).
+     * @param args.orderBy - Optional `'asc'` or `'desc'` (API default).
      * @param options - Optional configuration. Set `batch: true` to return a descriptor for batch requests.
      * @returns An array of conversation objects.
      *
@@ -55,7 +61,12 @@ export class ConversationsClient extends BaseClient {
     ): Promise<Conversation[]> | BatchRequestDescriptor<Conversation[]> {
         const method = 'GET'
         const url = `${ENDPOINT_CONVERSATIONS}/get`
-        const params = args
+        const { newerThan, olderThan, ...rest } = args
+        const params = {
+            ...rest,
+            ...(newerThan ? { newer_than_ts: Math.floor(newerThan.getTime() / 1000) } : {}),
+            ...(olderThan ? { older_than_ts: Math.floor(olderThan.getTime() / 1000) } : {}),
+        }
 
         if (options?.batch) {
             return { method, url, params, schema: z.array(this.conversationSchema) }

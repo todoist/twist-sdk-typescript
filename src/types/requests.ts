@@ -109,13 +109,23 @@ export const GetChannelsArgsSchema = z.object({
 
 export type GetChannelsArgs = z.infer<typeof GetChannelsArgsSchema>
 
+export const ORDER_BY_VALUES = ['asc', 'desc'] as const
+export type OrderBy = (typeof ORDER_BY_VALUES)[number]
+
 export const GetThreadsArgsSchema = z.object({
     workspaceId: z.number(),
     channelId: z.number().nullable().optional(),
     archived: z.boolean().nullable().optional(),
     newerThan: z.date().nullable().optional(),
     olderThan: z.date().nullable().optional(),
+    /** Max threads per request. API default 20, maximum 500. */
     limit: z.number().nullable().optional(),
+    /** Only threads with an id lower than this (strictly). Ordering switches to thread id. */
+    beforeId: z.number().nullable().optional(),
+    /** Only threads with an id higher than this (strictly). Ordering switches to thread id. */
+    afterId: z.number().nullable().optional(),
+    /** `desc` (API default) or `asc`; by `last_updated`, or by id when `beforeId`/`afterId` is set. */
+    orderBy: z.enum(ORDER_BY_VALUES).nullable().optional(),
 })
 
 export type GetThreadsArgs = Omit<
@@ -135,7 +145,14 @@ export const GetCommentsArgsSchema = z.object({
     from: z.date().nullable().optional(),
     newerThan: z.date().nullable().optional(),
     olderThan: z.date().nullable().optional(),
+    /** Max comments per request. API default 20, maximum 500. */
     limit: z.number().nullable().optional(),
+    /** Only comments starting at this `objIndex` (sent as `from_obj_index`). */
+    fromObjIndex: z.number().nullable().optional(),
+    /** Only comments ending at this `objIndex` (sent as `to_obj_index`). */
+    toObjIndex: z.number().nullable().optional(),
+    /** Ordering by `objIndex`: `desc` (API default) or `asc`. */
+    orderBy: z.enum(ORDER_BY_VALUES).nullable().optional(),
 })
 
 export type GetCommentsArgs = Omit<z.infer<typeof GetCommentsArgsSchema>, 'from'> & {
@@ -145,7 +162,18 @@ export type GetCommentsArgs = Omit<z.infer<typeof GetCommentsArgsSchema>, 'from'
 
 export const GetConversationsArgsSchema = z.object({
     workspaceId: z.number(),
+    /** When `true`, ONLY archived conversations are returned. */
     archived: z.boolean().nullable().optional(),
+    /** Max conversations per request. API default 20, maximum 500. */
+    limit: z.number().nullable().optional(),
+    newerThan: z.date().nullable().optional(),
+    olderThan: z.date().nullable().optional(),
+    /** Only conversations with an id lower than this (strictly). Ordering switches to id. */
+    beforeId: z.number().nullable().optional(),
+    /** Only conversations with an id higher than this (strictly). Ordering switches to id. */
+    afterId: z.number().nullable().optional(),
+    /** `desc` (API default) or `asc`; by `last_active`, or by id when `beforeId`/`afterId` is set. */
+    orderBy: z.enum(ORDER_BY_VALUES).nullable().optional(),
 })
 
 export type GetConversationsArgs = z.infer<typeof GetConversationsArgsSchema>
@@ -216,8 +244,19 @@ export type GetConversationMessagesArgs = {
     conversationId: number
     newerThan?: Date
     olderThan?: Date
+    /** Max messages per request. API default 20, maximum 500. */
     limit?: number
+    /**
+     * Forwarded as `cursor`. Not part of the documented REST API for
+     * `conversation_messages/get`; prefer `fromObjIndex`/`toObjIndex` for paging.
+     */
     cursor?: string
+    /** Only messages starting at this `objIndex` (sent as `from_obj_index`). */
+    fromObjIndex?: number
+    /** Only messages ending at this `objIndex` (sent as `to_obj_index`). */
+    toObjIndex?: number
+    /** Ordering by `objIndex`: `desc` (API default) or `asc`. */
+    orderBy?: OrderBy
 }
 
 export type CreateConversationMessageArgs = {
